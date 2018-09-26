@@ -3,7 +3,6 @@
 
 = form_tag movies_path, :method => :get, :id=>"ratings_form" do
   Include:
-  =puts @all_ratings
   - @all_ratings.each do |rating, checked|
     = rating
     = check_box_tag "ratings[#{rating}]", 1, checked

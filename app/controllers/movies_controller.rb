@@ -11,21 +11,33 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # When a fresh window opens, we face a unique situaltion.
+    # 1. Our order by is not set.
+    # 2. Our checkbox selection is not saved.
+    # so first we should detect that whether any of these are set or not.
+    # if any or both of these are not set but the corresponding session variables are set then we use session hash to restore the value
+    if(params[:order_by].nil? && params[:ratings].nil? && (!session[:order_by].nil? || !session[:ratings].nil?))
+      flash.keep
+      redirect_to movies_path(:order_by => session[:order_by], :ratings => session[:ratings])
+    end  
+    
     @order_by = params[:order]
     @ratings = params[:ratings]
+    # Get a collection of ratings from the database
     list_of_ratings = Movie.ratings_collection
     
     if !@ratings.nil?
       selected_ratings = @ratings.keys
-    else 
+    else
+      # select everything if all the checkboxes are unselected
       selected_ratings = list_of_ratings.to_enum  
     end
     
+    # create a hash which would be used in haml file.
     @all_ratings = Hash.new
     
     list_of_ratings.each do |rating|
       @all_ratings[rating] = @ratings.nil? ? true : @ratings.has_key?(rating)
-      #@all_ratings[rating] = false
     end
       
     if !@order_by.nil?
@@ -33,7 +45,9 @@ class MoviesController < ApplicationController
     else
       @movies = Movie.where('rating in (?)', selected_ratings)
     end  
-  
+    # we need to preserve the "order by" settings and the "checkbox" settings
+    session[:order_by] = @order_by
+    session[:ratings] = @ratings
   end
 
   def new
