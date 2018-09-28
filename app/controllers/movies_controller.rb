@@ -18,7 +18,7 @@ class MoviesController < ApplicationController
     # if any or both of these are not set but the corresponding session variables are set then we use session hash to restore the value
     if(params[:order_by].nil? && params[:ratings].nil? && (!session[:order_by].nil? || !session[:ratings].nil?))
       flash.keep
-      redirect_to movies_path(:order_by => session[:order_by], :ratings => session[:ratings])
+      redirect_to movies_path(:order_by => session[:order_by], :ratings => session[:ratings]) and return
     end  
     
     @order_by = params[:order]
